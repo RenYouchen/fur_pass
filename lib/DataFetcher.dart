@@ -5,13 +5,13 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 
-const target = "http://localhost:8000/a.html";
+const target = "http://localhost:8000/";
 // var target = "https://infurnity2024.sched.com/list/simple/?iframe=no";
 
 
 void main() async{
   // var target = "http://localhost:8000/a.html";
-  var url = Uri.parse(target);
+  var url = Uri.parse("${target}a.html");
   var get = await http.get(url);
   var doc = parse(utf8.decode(get.bodyBytes));
   var extractedData = doc.getElementsByClassName("sched-container-anchor"); //每天的資料 -index
@@ -20,10 +20,10 @@ void main() async{
   //   print(i.nextElementSibling!.text.trim());
   // });
   // print(extractedData.length);
-  fetchDay(doc.getElementsByClassName('list-simple')[0]);
+  await fetchDay(doc.getElementsByClassName('list-simple')[0]);
 }
 
-void fetchDay(Element listData) {
+Future<void> fetchDay(Element listData) async{
   var days = listData.getElementsByClassName("sched-container-header");
   for(var i in days) {
     var date = i.previousElementSibling!.id;
@@ -31,14 +31,14 @@ void fetchDay(Element listData) {
     while(pointer.className!="sched-container-bottom") {
       if(pointer.localName == "h3") { //Time
         // print(pointer.text);
-        _fetchHr(pointer, date);
+        await _fetchHr(pointer, date);
       }
       pointer = pointer.nextElementSibling!;
     }
   }
 }
 
-void _fetchHr(Element hrData, String date) {
+Future<void> _fetchHr(Element hrData, String date) async{
   var time = DateFormat("yyyy-MM-dd h:mma Z").parse("$date ${hrData.text.replaceAll("CST", "+0800").toUpperCase().trim()}");
   // print(time);
   var events = hrData.nextElementSibling!.getElementsByClassName("name");
@@ -48,9 +48,9 @@ void _fetchHr(Element hrData, String date) {
     var name = i.nodes[0].text!.trim();
     var place = i.getElementsByClassName("vs")[0].text.trim();
     var path = i.attributes['href']!.trim();
-    print("$name $place $path");
+    print("Title: $name $place");
+    await _getDetail(path);
     // print("mkdir -p ${path.substring(0,12)};curl https://infurnity2024.sched.com/$path > ./$path");
-
   }
 
   // var name = hrData.nextElementSibling!.getElementsByClassName("name")[0].nodes[0].text!.trim();
@@ -59,10 +59,23 @@ void _fetchHr(Element hrData, String date) {
   // // print("$name $place");
 }
 
-void _getDetail(String path) async{
+Future<void> _getDetail(String path) async{
   var get = await http.get(Uri.parse("$target/$path"));
   var doc = parse(utf8.decode(get.bodyBytes));
+  var describe = "";
+  // print("$target/$path");
 
+  if(doc.getElementsByClassName("tip-description").isNotEmpty) {
+    //很奇怪我認為很毒瘤很不應該的寫法 把東西轉成文字之後replace"<br>"成換行 再轉換成doc
+    //但東西出來了應該就沒問題uwu
+    var rawDescribe = parse(doc.getElementsByClassName("tip-description")[0].outerHtml.replaceAll('<br>', '\n<br>')).getElementsByClassName("tip-description")[0];
+    // print(rawDescribe.text.trim());
+    describe = rawDescribe.text.trim();
+    //TODO 這邊可以再縮減 去掉if直接丟上去
+  }
+
+
+  return;
 }
 
 class DayData {
@@ -86,8 +99,9 @@ class EventData {
    * Time
    * --StartTime
    * --EndTime
+   *
    * Type
-   * Describe
+   * Describe --nullable
    * ***/
 }
 
