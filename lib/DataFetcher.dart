@@ -13,6 +13,10 @@ void main() async{
   print(jsonEncode(data));
 }
 
+Future<String> getJsonData() async {
+  return jsonEncode(await getData());
+}
+
 Future<List<DayData>> getData() async{
   var url = Uri.parse("${target}a.html");
   var get = await http.get(url);
