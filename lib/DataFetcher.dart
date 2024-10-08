@@ -4,6 +4,7 @@ import 'package:html/dom.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
+import 'dart:developer';
 
 const target = "http://localhost:8000/";
 // var target = "https://infurnity2024.sched.com/list/simple/?iframe=no";
@@ -30,8 +31,9 @@ Future<void> fetchDay(Element listData) async{
     var pointer = i;
     while(pointer.className!="sched-container-bottom") {
       if(pointer.localName == "h3") { //Time
-        // print(pointer.text);
+        print(pointer.text.trim());
         await _fetchHr(pointer, date);
+        print("");
       }
       pointer = pointer.nextElementSibling!;
     }
@@ -49,7 +51,7 @@ Future<void> _fetchHr(Element hrData, String date) async{
     var place = i.getElementsByClassName("vs")[0].text.trim();
     var path = i.attributes['href']!.trim();
     print("Title: $name $place");
-    await _getDetail(path);
+    await _getDetail(path, date);
     // print("mkdir -p ${path.substring(0,12)};curl https://infurnity2024.sched.com/$path > ./$path");
   }
 
@@ -59,11 +61,32 @@ Future<void> _fetchHr(Element hrData, String date) async{
   // // print("$name $place");
 }
 
-Future<void> _getDetail(String path) async{
+Future<void> _getDetail(String path, String date) async{
   var get = await http.get(Uri.parse("$target/$path"));
   var doc = parse(utf8.decode(get.bodyBytes));
+  //呃呃呃呃呃呃 下面這個是大便
+  var endTime = DateFormat("yyyy-MM-dd h:mma Z").parse("$date ${doc.getElementsByClassName("list-single__date").first.text.trim().substring(doc.getElementsByClassName("list-single__date").first.text.trim().length - 10).replaceAll("CST", "+0800").toUpperCase()}");
   var describe = "";
-  // print("$target/$path");
+
+  print(endTime);
+
+  //sched-event-type
+  var rawEventType = doc.getElementsByClassName('sched-event-type')[0];
+  var eventType = [];
+  var languages = [];
+
+  for(var i in rawEventType.children) {
+    if(i.localName == 'a') {
+      eventType.add(i.text.trim());
+    }
+    if(i.localName == 'ul') {
+      for(var j in i.children.first.children) {
+        if(j.localName == 'a') {
+          languages.add(j.text.trim());
+        }
+      }
+    }
+  }
 
   if(doc.getElementsByClassName("tip-description").isNotEmpty) {
     //很奇怪我認為很毒瘤很不應該的寫法 把東西轉成文字之後replace"<br>"成換行 再轉換成doc
@@ -73,7 +96,7 @@ Future<void> _getDetail(String path) async{
     describe = rawDescribe.text.trim();
     //TODO 這邊可以再縮減 去掉if直接丟上去
   }
-
+  // print("$describe\n$eventType\n$languages");
 
   return;
 }
@@ -83,13 +106,18 @@ class DayData {
 }
 
 class EventData {
-  DateTime time;
+  DateTime startTime;
+  DateTime endTime;
 
   String name;
   String place;
   String url;
 
-  EventData({required this.time, required this.name, required this.place, required this.url});
+  String describe;
+  List<String> eventType;
+  List<String> languages;
+
+  EventData({required this.startTime, required this.endTime, required this.name, required this.place, required this.url, required this.describe, required this.eventType, required this.languages});
 
   /***
    * Name
@@ -100,8 +128,11 @@ class EventData {
    * --StartTime
    * --EndTime
    *
-   * Type
    * Describe --nullable
+   *
+   * EventType --nullable
+   * --Type
+   * --Languages
    * ***/
 }
 
