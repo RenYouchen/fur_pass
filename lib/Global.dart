@@ -1,16 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fur_pass/DataFetcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Global {
   static var btns = [
-    BtnData(Icons.event, "活動", ""),
+    BtnData(Icons.event, "活動", "/events"),
     BtnData(Icons.qr_code, "我的QR code", ""),
     BtnData(Icons.newspaper_rounded, "公告", ""),
     BtnData(Icons.map_outlined, "會場地圖", ""),
   ];
 
-  static const String localCache = "localCache";
+  static String localCache = "";
 
   static late SharedPreferences sharedPreferences;
 
@@ -18,13 +20,17 @@ class Global {
     WidgetsFlutterBinding.ensureInitialized();
     sharedPreferences = await SharedPreferences.getInstance();
 
-    if(sharedPreferences.getString(localCache) == null) {
+    if(sharedPreferences.getString("localCache") == null) {
       fetchData();
+    } else {
+      localCache = sharedPreferences.getString("localCache")!;
     }
   }
 
   static Future fetchData() async {
-    sharedPreferences.setString(localCache, await getJsonData());
+    var data = await getJsonData();
+    localCache = data;
+    sharedPreferences.setString("localCache", data);
   }
 }
 

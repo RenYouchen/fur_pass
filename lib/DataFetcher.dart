@@ -10,7 +10,9 @@ const target = "http://localhost:8000/";
 
 void main() async{
   var data = await getData();
-  print(jsonEncode(data));
+  var json = jsonEncode(data);
+  List jsonData = jsonDecode(json);
+  var a = DayData.fromJson(jsonData[0]);
 }
 
 Future<String> getJsonData() async {
@@ -109,6 +111,11 @@ class DayData {
   DateTime date;
   List<HrData> hrDatas;
   DayData({required this.date, required this.hrDatas});
+  DayData.fromJson(Map<String, dynamic> json) :
+    date = DateTime.parse(json['date']),
+    hrDatas = List.generate(json['hrDatas'].length, (i) => 
+      HrData.fromJson(json['hrDatas'][i])
+  );
 
   @override
   String toString() {
@@ -120,17 +127,25 @@ class DayData {
       'hrDatas': hrDatas.map((hr) => hr.toJson()).toList(),
     };
   }
+
+
 }
 
 class HrData {
   DateTime time;
   List<EventData> events;
   HrData({required this.time, required this.events});
+  HrData.fromJson(Map<String, dynamic> json) :
+      time = DateTime.parse(json['time']),
+      events = List.generate(json['events'].length, (i) =>
+        EventData.fromJson(json['events'][i])
+      );
 
   @override
   String toString() {
     return 'HrData{time: $time, events: $events}';
   }
+
   Map<String, dynamic> toJson() {
     return {
       'time': time.toIso8601String(),
@@ -157,6 +172,17 @@ class EventData {
   String toString() {
     return 'EventData{\nstartTime: $startTime, endTime: $endTime, name: $name\nplace: $place, describe: $describe\neventType: $eventType\nlanguages: $languages\n}';
   }
+
+  EventData.fromJson(Map<String, dynamic> json)
+      : startTime = DateTime.parse(json['startTime']),
+        endTime = DateTime.parse(json['endTime']),
+        name = json['name'],
+        place = json['place'],
+        url = json['url'],
+        describe = json['describe'],
+        eventType = List<dynamic>.from(json['eventType']),
+        languages = List<dynamic>.from(json['languages']);
+
   Map<String, dynamic> toJson() {
     return {
       'startTime': startTime.toIso8601String(),

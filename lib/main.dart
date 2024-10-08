@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fur_pass/Screens/EventsPage.dart';
 import 'package:fur_pass/Screens/MainPage.dart';
 
 import 'Global.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         "/" : (context) => const MainPage(),
+        "/events": (context) => const EventsPage(),
       },
     );
   }
