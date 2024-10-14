@@ -16,7 +16,7 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage>
     with SingleTickerProviderStateMixin {
-  var _tabBarController;
+  late TabController _tabBarController;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,9 @@ Widget _eventPerHr(HrData data, BuildContext context) {
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(context, '/eventDetail', arguments: data.events[index]);
+                  }, //TODO eventdetail
                   title:
                       Text(data.events[index].name.split(RegExp(r"[/／]+"))[0]),
                   subtitle: data.events[index].name
