@@ -72,24 +72,29 @@ Widget _eventPerHr(HrData data, BuildContext context) {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
-                return ListTile(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/eventDetail', arguments: data.events[index]);
-                  }, //TODO eventdetail
-                  title:
-                      Text(data.events[index].name.split(RegExp(r"[/／]+"))[0]),
-                  subtitle: data.events[index].name
-                              .split(RegExp(r"[/／]+"))
-                              .length >=
-                          2
-                      ? Text(
-                          data.events[index].name.split(RegExp(r"[/／]+")).last)
-                      : null,
-                  //好懶
-                  trailing: Text(data.events[index].place
-                      .replaceAll(' - ', '-')
-                      .split(' ')[1]
-                      .replaceAll('VIP', 'VIP Room')),
+                return Dismissible(
+                  key: Key(data.events[index].name),
+                  background: Container(color: Colors.red[100], alignment: Alignment.centerRight, child: const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Icon(Icons.favorite),
+                  ),),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/eventDetail', arguments: data.events[index]);
+                    },
+                    title:
+                        Text(data.events[index].name.split(RegExp(r"[/／]+"))[0]),
+                    subtitle: data.events[index].name
+                                .split(RegExp(r"[/／]+"))
+                                .length >= 2
+                        ? Text(data.events[index].name.split(RegExp(r"[/／]+")).last.trim()) : null,
+                    //好懶
+                    trailing: Text(data.events[index].place
+                        .replaceAll(' - ', '-')
+                        .split(' ')[1]
+                        .replaceAll('VIP', 'VIP Room'),
+                    ),
+                  ),
                 );
               },
               separatorBuilder: (context, index) => const Divider(height: 0),

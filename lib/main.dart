@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'UwU',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
       ),
       initialRoute: '/',
@@ -28,4 +28,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
+//TODO 添加一個等待的介面

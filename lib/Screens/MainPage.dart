@@ -23,7 +23,10 @@ AppBar _appBar() =>
     AppBar(
       title: const Text("Infurnity 2024"),
       actions: [
-        IconButton(onPressed: (){/*TODO add setting*/}, icon: const Icon(Icons.settings))
+        IconButton(onPressed: () async{
+          /*TODO modife this*/
+          // print(Global.sharedPreferences);
+        }, icon: const Icon(Icons.settings))
       ],
     );
 
@@ -44,6 +47,7 @@ Column _body(context) =>
         ),
         Expanded(
           child: GridView.builder(
+            shrinkWrap: true,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
               itemCount: Global.btns.length,
               itemBuilder: (context, index) {

@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 
-const target = "http://localhost:8000/";
-// var target = "https://infurnity2024.sched.com/list/simple/?iframe=no";
+// const target = "http://localhost:8000/";
+var target = "https://infurnity2024.sched.com/";
 
 void main() async{
   var data = await getData();
@@ -68,7 +68,8 @@ Future<HrData> _fetchHr(Element hrData, String date) async{
 }
 
 Future<List> _getDetail(String path, String date) async{
-  var get = await http.get(Uri.parse("$target/$path"));
+  var get = await http.get(Uri.parse("$target$path"));
+  print("$target$path");
   var doc = parse(utf8.decode(get.bodyBytes));
   //呃呃呃呃呃呃 下面這個是大便
   var endTime = DateFormat("yyyy-MM-dd h:mma Z").parse("$date ${doc.getElementsByClassName("list-single__date").first.text.trim().substring(doc.getElementsByClassName("list-single__date").first.text.trim().length - 10).replaceAll("CST", "+0800").toUpperCase()}");

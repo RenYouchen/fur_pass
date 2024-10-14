@@ -21,13 +21,16 @@ class Global {
     sharedPreferences = await SharedPreferences.getInstance();
 
     if(sharedPreferences.getString("localCache") == null) {
-      fetchData();
+      await fetchData();
     } else {
       localCache = sharedPreferences.getString("localCache")!;
     }
+    print(localCache);
+    print('done init');
   }
 
   static Future fetchData() async {
+    print("fetching data");
     var data = await getJsonData();
     localCache = data;
     sharedPreferences.setString("localCache", data);
