@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fur_pass/DataFetcher.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 import '../Global.dart';
@@ -13,24 +14,44 @@ class EventsPage extends StatefulWidget {
   State<EventsPage> createState() => _EventsPageState();
 }
 
-class _EventsPageState extends State<EventsPage> {
+class _EventsPageState extends State<EventsPage>
+    with SingleTickerProviderStateMixin {
+  var _tabBarController;
+
   @override
   Widget build(BuildContext context) {
-    var jsonData = jsonDecode(Global.localCache);
-    var dayOne = DayData.fromJson(jsonData[0]);
-    // for(var z in jsonData) {
-    //   var d = DayData.fromJson(z);
-    //   d.hrDatas.forEach((i) => i.events.forEach((j) => print(j.place)));
-    // }
-
-
+    List jsonData = jsonDecode(Global.localCache);
+    var parseData = List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
     return Scaffold(
-        appBar: _appBar,
-        body: ListView.builder(
-            itemCount: dayOne.hrDatas.length,
-            itemBuilder: (context, index) {
-              return _eventPerHr(dayOne.hrDatas[index],context);
-            }));
+        appBar: AppBar(
+          title: const Text("活動"),
+          bottom: TabBar(
+            controller: _tabBarController,
+            tabs: [
+              for (var i in jsonData)
+                Tab(
+                  text: DateFormat("EEEE", "zh_TW").format(DayData.fromJson(i).date),
+                )
+            ],
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabBarController,
+            children: [
+              for(var i in parseData)
+          ListView.builder(
+              itemCount: i.hrDatas.length,
+              itemBuilder: (context, index) {
+                return _eventPerHr(i.hrDatas[index], context);
+              }),
+        ]));
+  }
+
+  @override
+  void initState() {
+    _tabBarController = TabController(length: 3, vsync: this);
+    initializeDateFormatting("zh_TW", null);  //Must init language before format it
+    super.initState();
   }
 }
 
@@ -47,21 +68,32 @@ Widget _eventPerHr(HrData data, BuildContext context) {
         ),
         Card(
           clipBehavior: Clip.antiAlias,
-          child: ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), itemBuilder: (context, index) =>
-              ListTile(
-                onTap: () {},
-                title: Text(data.events[index].name.split(RegExp(r"[/／]+"))[0]),
-                subtitle: data.events[index].name.split(RegExp(r"[/／]+")).length >= 2
-                    ? Text(data.events[index].name.split(RegExp(r"[/／]+")).last)
-                    : null,
-                trailing: Text(data.events[index].place.replaceAll(' - ', '-').split(' ')[1]),
-              ), separatorBuilder: (context, index) => const Divider(), itemCount: data.events.length),
+          child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                return ListTile(
+                  onTap: () {},
+                  title:
+                      Text(data.events[index].name.split(RegExp(r"[/／]+"))[0]),
+                  subtitle: data.events[index].name
+                              .split(RegExp(r"[/／]+"))
+                              .length >=
+                          2
+                      ? Text(
+                          data.events[index].name.split(RegExp(r"[/／]+")).last)
+                      : null,
+                  //好懶
+                  trailing: Text(data.events[index].place
+                      .replaceAll(' - ', '-')
+                      .split(' ')[1]
+                      .replaceAll('VIP', 'VIP Room')),
+                );
+              },
+              separatorBuilder: (context, index) => const Divider(height: 0),
+              itemCount: data.events.length),
         ),
       ],
     ),
   );
 }
-
-AppBar _appBar = AppBar(
-  title: const Text("活動"),
-);
