@@ -78,6 +78,8 @@ Widget _eventPerHr(HrData data, BuildContext context) {
                     padding: EdgeInsets.all(12.0),
                     child: Icon(Icons.favorite),
                   ),),
+                  confirmDismiss: (_) async{return false;},
+
                   child: ListTile(
                     onTap: () {
                       Navigator.pushNamed(context, '/eventDetail', arguments: data.events[index]);

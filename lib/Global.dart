@@ -6,10 +6,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Global {
   static var btns = [
-    BtnData(Icons.event, "活動", "/events"),
-    BtnData(Icons.qr_code, "我的QR code", ""),
-    BtnData(Icons.newspaper_rounded, "公告", ""),
-    BtnData(Icons.map_outlined, "會場地圖", ""),
+    BtnData(icon:Icons.event, title:"活動", navPath: "/events", arg: () {
+      if(localCache.isEmpty) {
+        //Fetch Data
+        return '正在加載資料...';
+      }
+      return true;
+    }),
+    BtnData(icon:Icons.qr_code, title:"我的QR code", navPath: ""),
+    BtnData(icon:Icons.newspaper_rounded, title:"公告", navPath: ""),
+    BtnData(icon:Icons.map_outlined, title:"會場地圖", navPath: ""),
   ];
 
   static String localCache = "";
@@ -19,12 +25,12 @@ class Global {
   static Future init() async{
     WidgetsFlutterBinding.ensureInitialized();
     sharedPreferences = await SharedPreferences.getInstance();
-
-    if(sharedPreferences.getString("localCache") == null) {
-      await fetchData();
-    } else {
-      localCache = sharedPreferences.getString("localCache")!;
-    }
+    //TODO Change This
+    // if(sharedPreferences.getString("localCache") == null) {
+    //   await fetchData();
+    // } else {
+    //   localCache = sharedPreferences.getString("localCache")!;
+    // }
     print(localCache);
     print('done init');
   }
@@ -41,5 +47,7 @@ class BtnData{
   final IconData icon;
   final String title;
   final String navPath;
-  BtnData(this.icon, this.title, this.navPath);
+  var arg;
+
+  BtnData({required this.icon, required this.title, required this.navPath, this.arg});
 }

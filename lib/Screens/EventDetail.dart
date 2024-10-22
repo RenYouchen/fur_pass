@@ -16,24 +16,33 @@ class _EventDetailState extends State<EventDetail> {
     print(data);
     return Scaffold(
       appBar: AppBar(
-        leading: InkWell(
-          onTap: () => Navigator.pop(context),
-          child: const Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.arrow_back_ios_new),
-              ),
-              Text("返回")
-            ],
+        leading: Card(
+          clipBehavior: Clip.antiAlias,
+          shadowColor: Colors.transparent,
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Navigator.pop(context),
+            child: const Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(Icons.arrow_back_ios_new),
+                ),
+                Text("返回")
+              ],
+            ),
           ),
         ),
         leadingWidth: 96,
+        actions: [
+          IconButton(onPressed: (){}, icon: const Icon(Icons.star_border))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(padding: const EdgeInsets.all(8.0), child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

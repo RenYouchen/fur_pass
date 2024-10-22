@@ -12,7 +12,8 @@ void main() async{
   var data = await getData();
   var json = jsonEncode(data);
   List jsonData = jsonDecode(json);
-  var a = DayData.fromJson(jsonData[0]);
+  await getJsonData();
+  // var a = DayData.fromJson(jsonData[0]);
 }
 
 Future<String> getJsonData() async {
@@ -23,7 +24,7 @@ Future<List<DayData>> getData() async{
   var url = Uri.parse("${target}a.html");
   var get = await http.get(url);
   var doc = parse(utf8.decode(get.bodyBytes));
-  return await _fetchDays(doc.getElementsByClassName('list-simple')[0]);
+  return await _fetchDays(doc.getElementsByClassName('list-simple').first);
 }
 
 Future<List<DayData>> _fetchDays(Element listData) async{
