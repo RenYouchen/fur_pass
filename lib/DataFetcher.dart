@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fur_pass/Global.dart';
 import 'package:html/dom.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
@@ -47,6 +48,7 @@ Future<List<DayData>> _fetchDays(Element listData) async{
 }
 
 Future<HrData> _fetchHr(Element hrData, String date) async{
+  Global.setMessageLoading = date;
   var time = DateFormat("yyyy-MM-dd h:mma Z").parse("$date ${hrData.text.replaceAll("CST", "+0800").toUpperCase().trim()}");
   var events = hrData.nextElementSibling!.getElementsByClassName("name");
   List<EventData> data = [];
@@ -56,7 +58,7 @@ Future<HrData> _fetchHr(Element hrData, String date) async{
     var path = i.attributes['href']!.trim();
     // print("Title: $name $place");
     var _data = await _getDetail(path, date);
-    
+    print(name);
     var eventData = EventData(startTime: time, endTime: _data[0], name: name, place: place, url: path, describe: _data[1], eventType: _data[2], languages: _data[3]);
     data.add(eventData);
     // print("mkdir -p ${path.substring(0,12)};curl https://infurnity2024.sched.com/$path > ./$path");

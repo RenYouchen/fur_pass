@@ -2,14 +2,39 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fur_pass/DataFetcher.dart';
+import 'package:fur_pass/Screens/MainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Global {
+
+  static int totalLoading = -1;
+  static int currentLoading = -1;
+  static String messageLoading = '';
+
+
+  static Function? onLoadingValueChange = () {
+  };
+
+  set setTotalLoading(int i) {
+    totalLoading = i;
+    onLoadingValueChange!();
+  }
+  set setCurrentLoading(int i) {
+    currentLoading = i;
+    onLoadingValueChange!();
+  }
+  static set setMessageLoading(String i) {
+    messageLoading = i;
+    onLoadingValueChange!();
+  }
+
+
   static var btns = [
     BtnData(icon:Icons.event, title:"活動", navPath: "/events", arg: () {
       if(localCache.isEmpty) {
         //Fetch Data
-        return '正在加載資料...';
+        fetchData();
+        return '正在加載資料... *請只點一次這個按鈕因為我不知道一直點cache會變什麼奇怪樣子 可以看上面的小鈴噹 完成會寫';
       }
       return true;
     }),
@@ -39,8 +64,10 @@ class Global {
     print("fetching data");
     var data = await getJsonData();
     localCache = data;
+    setMessageLoading = "完成";
     sharedPreferences.setString("localCache", data);
   }
+
 }
 
 class BtnData{

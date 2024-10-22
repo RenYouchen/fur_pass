@@ -13,11 +13,16 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
+    Global.onLoadingValueChange = () {
+      setState(() {
+      });
+    };
     return Scaffold(
       appBar: _appBar(context),
       body: _body(context),
     );
   }
+
 }
 
 AppBar _appBar(context) => AppBar(
@@ -28,18 +33,19 @@ AppBar _appBar(context) => AppBar(
               /*TODO modife this*/
               showModalBottomSheet(
                 context: context,
-                builder: (context) => const SafeArea(
+                builder: (context) => SafeArea(
                   child: ListTile(
-                    title: Text('Loading'),
+                    title: Global.messageLoading.isNotEmpty?Text(Global.messageLoading):null,
                     subtitle: LinearProgressIndicator(
-
+                      value: (Global.currentLoading == -1 || Global.totalLoading == -1) ? null
+                          : Global.currentLoading/Global.totalLoading,
                     ),
                   ),
                 ),
               );
               // print(Global.sharedPreferences);
             },
-            icon: const Icon(Icons.settings))
+            icon: const Icon(Icons.notifications))
       ],
     );
 
@@ -83,7 +89,7 @@ Widget _btn(BtnData data, context) {
                     Navigator.pushNamed(context, data.navPath);
                   } catch (e) {
                     ScaffoldMessenger.of(context)
-                        .showSnackBar(const SnackBar(content: Text('還沒完成><')));
+                        .showSnackBar(SnackBar(content: Text('\'${data.title}\' 還沒完成><')));
                   }
 
                 }
