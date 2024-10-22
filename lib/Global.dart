@@ -7,24 +7,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Global {
 
-  static int totalLoading = -1;
-  static int currentLoading = -1;
-  static String messageLoading = '';
-
+  static ValueNotifier<int> totalLoading = ValueNotifier(-1);
+  static ValueNotifier<int> currentLoading = ValueNotifier(-1);
+  static ValueNotifier<String> messageLoading = ValueNotifier<String>('');
 
   static Function? onLoadingValueChange = () {
   };
 
-  set setTotalLoading(int i) {
-    totalLoading = i;
+  static set setTotalLoading(int i) {
+    totalLoading.value = i;
     onLoadingValueChange!();
   }
-  set setCurrentLoading(int i) {
-    currentLoading = i;
+  static set setCurrentLoading(int i) {
+    currentLoading.value = i;
     onLoadingValueChange!();
   }
   static set setMessageLoading(String i) {
-    messageLoading = i;
+    messageLoading.value = i;
     onLoadingValueChange!();
   }
 
@@ -61,6 +60,9 @@ class Global {
   }
 
   static Future fetchData() async {
+    setCurrentLoading = -1;
+    setTotalLoading = -1;
+    setMessageLoading = "正在抓取資料";
     print("fetching data");
     var data = await getJsonData();
     localCache = data;

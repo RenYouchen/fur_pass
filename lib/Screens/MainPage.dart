@@ -13,34 +13,49 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    Global.onLoadingValueChange = () {
-      setState(() {
-      });
-    };
+    // Global.onLoadingValueChange = () {
+    //   setState(() {
+    //   });
+    // };
     return Scaffold(
       appBar: _appBar(context),
       body: _body(context),
     );
   }
-
 }
 
 AppBar _appBar(context) => AppBar(
       title: const Text("Infurnity 2024"),
       actions: [
         IconButton(
+            onPressed: () => Global.fetchData(),
+            icon: const Icon(Icons.refresh)),
+        IconButton(
             onPressed: () async {
               /*TODO modife this*/
               showModalBottomSheet(
                 context: context,
-                builder: (context) => SafeArea(
-                  child: ListTile(
-                    title: Global.messageLoading.isNotEmpty?Text(Global.messageLoading):null,
-                    subtitle: LinearProgressIndicator(
-                      value: (Global.currentLoading == -1 || Global.totalLoading == -1) ? null
-                          : Global.currentLoading/Global.totalLoading,
-                    ),
-                  ),
+                builder: (context) => ValueListenableBuilder(
+                  valueListenable: Global.messageLoading,
+                  builder: (BuildContext context, String value, Widget? child) {
+                    return SafeArea(
+                      child: ListTile(
+                          title: value.isNotEmpty ? Text(value) : null,
+                          subtitle: ValueListenableBuilder(
+                            valueListenable: Global.totalLoading,
+                            builder: (_, valueT, __) {
+                              return ValueListenableBuilder(
+                                  valueListenable: Global.currentLoading,
+                                  builder: (_, valueC, __) {
+                                    print('$valueC $valueT : ${valueC/valueT}');
+                                    return LinearProgressIndicator(
+                                      value: valueC / valueT,
+                                    );
+                                  });
+                            },
+                          )),
+                    );
+                  },
                 ),
               );
               // print(Global.sharedPreferences);
@@ -81,17 +96,17 @@ Widget _btn(BtnData data, context) {
           height: size,
           child: ElevatedButton(
               onPressed: () {
-                if(data.arg!=null && data.arg() != true) {
+                if (data.arg != null && data.arg() != true) {
                   String rtData = data.arg();
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(rtData)));
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(rtData)));
                 } else {
                   try {
                     Navigator.pushNamed(context, data.navPath);
                   } catch (e) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('\'${data.title}\' 還沒完成><')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('\'${data.title}\' 還沒完成><')));
                   }
-
                 }
               },
               style: ElevatedButton.styleFrom(

@@ -48,15 +48,20 @@ Future<List<DayData>> _fetchDays(Element listData) async{
 }
 
 Future<HrData> _fetchHr(Element hrData, String date) async{
-  Global.setMessageLoading = date;
   var time = DateFormat("yyyy-MM-dd h:mma Z").parse("$date ${hrData.text.replaceAll("CST", "+0800").toUpperCase().trim()}");
+  Global.setMessageLoading = DateFormat("yyyy-MM-dd h:mma Z").format(time);
   var events = hrData.nextElementSibling!.getElementsByClassName("name");
   List<EventData> data = [];
+  Global.setTotalLoading = Global.totalLoading.value == -1 || true? events.length : Global.totalLoading.value + events.length;
+  Global.setCurrentLoading = 0;
+  print("TOTAL: ${Global.totalLoading.value}");
   for(var i in events) {
     var name = i.nodes[0].text!.trim();
     var place = i.getElementsByClassName("vs")[0].text.trim();
     var path = i.attributes['href']!.trim();
     // print("Title: $name $place");
+    Global.setCurrentLoading = Global.currentLoading.value == -1? 1 : Global.currentLoading.value+=1;
+    print("cur: ${Global.currentLoading.value}");
     var _data = await _getDetail(path, date);
     print(name);
     var eventData = EventData(startTime: time, endTime: _data[0], name: name, place: place, url: path, describe: _data[1], eventType: _data[2], languages: _data[3]);
@@ -72,7 +77,7 @@ Future<HrData> _fetchHr(Element hrData, String date) async{
 
 Future<List> _getDetail(String path, String date) async{
   var get = await http.get(Uri.parse("$target$path"));
-  print("$target$path");
+  // print("$target$path");
   var doc = parse(utf8.decode(get.bodyBytes));
   //呃呃呃呃呃呃 下面這個是大便
   var endTime = DateFormat("yyyy-MM-dd h:mma Z").parse("$date ${doc.getElementsByClassName("list-single__date").first.text.trim().substring(doc.getElementsByClassName("list-single__date").first.text.trim().length - 10).replaceAll("CST", "+0800").toUpperCase()}");
