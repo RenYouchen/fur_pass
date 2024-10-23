@@ -61,9 +61,9 @@ Future<HrData> _fetchHr(Element hrData, String date) async{
     var path = i.attributes['href']!.trim();
     // print("Title: $name $place");
     print("cur: ${Global.currentLoading.value}");
+    print(name);
     var _data = await _getDetail(path, date);
     Global.setCurrentLoading = Global.currentLoading.value == -1? 1 : Global.currentLoading.value+=1;
-    print(name);
     var eventData = EventData(startTime: time, endTime: _data[0], name: name, place: place, url: path, describe: _data[1], eventType: _data[2], languages: _data[3]);
     data.add(eventData);
     // print("mkdir -p ${path.substring(0,12)};curl https://infurnity2024.sched.com/$path > ./$path");
