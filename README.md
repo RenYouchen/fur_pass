@@ -1,19 +1,18 @@
-# fur_pass
+# Fur Pass! - 一個整合一些酷東東的App
+某天沒事做突然想寫寫看，然後就開始了這個東東。
+他可以
+- 從行程表上把數據抓下來緩存
+- 讓你用酷UI看各種活動
+- 直接找到會場地圖！
+- 還有各式各樣奇奇怪怪的功能(未完成)
 
-A new Flutter project.
+只是有一點點小問題
+Android的部分沒有特別寫(雖然這是用Flutter寫的)
+像是用到WebView的地方可能會沒辦法用 (快寫
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+iOS的用戶可以Clone下來自己裝(X
+或者可以來酷酷的TestFlight!
+https://testflight.apple.com/join/byaaFCSC
 
 ---
 # TODO
