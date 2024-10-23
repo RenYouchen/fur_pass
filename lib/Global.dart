@@ -41,9 +41,9 @@ class Global {
       }
       return true;
     }),
-    BtnData(icon:Icons.qr_code, title:"我的QR code", navPath: "/webView"),
-    BtnData(icon:Icons.newspaper_rounded, title:"公告", navPath: ""),
-    BtnData(icon:Icons.map_outlined, title:"會場地圖", navPath: ""),
+    BtnData(icon:Icons.qr_code, title:"我的QR code", navPath: ""),
+    BtnData(icon:Icons.home/**/, title:"活動主頁", navPath: "/webView", arg: "https://www.infurnity.com/"),
+    BtnData(icon:Icons.map_outlined, title:"會場地圖", navPath: "/webView", arg: "https://infurnity2024.sched.com/info?iframe=no"),
   ];
 
   static String localCache = "";

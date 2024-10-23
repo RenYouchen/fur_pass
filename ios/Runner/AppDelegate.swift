@@ -1,9 +1,9 @@
 import Flutter
-import WebKit
+import SafariServices
 import UIKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate{
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -12,26 +12,30 @@ import UIKit
     let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
     let webViewChannel = FlutterMethodChannel(name: "com.renyouchen.furPass/webView", binaryMessenger: controller.binaryMessenger)
     
-//      webViewChannel.invokeMethod(<#T##method: String##String#>, arguments: <#T##Any?#>)
+      webViewChannel.setMethodCallHandler({
+          [weak self] (call: FlutterMethodCall, result: FlutterResult) in
+          if(call.method == "openWebView") {
+              guard let args = call.arguments as? [String: Any],
+                    let url = args["url"] as? String else {
+                  result(FlutterError(code: "Invaild arg", message: "Missing url", details: nil))
+                  return
+              }
+              self?.openUrl(url: url, controller: controller)
+              result(nil)
+          } else {
+              result(FlutterMethodNotImplemented)
+          }
+          
+      })
       
 // MARK: - generate code
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-}
-
-//MARK: - WebKit
-class WebViewController: UIViewController {
-  var url: String?
-  var webView: WKWebView!
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    webView = WKWebView(frame: self.view.frame)
-    self.view.addSubview(webView)
-
-    if let urlString = url, let url = URL(string: urlString) {
-      webView.load(URLRequest(url: url))
+// MARK: - openWebview
+    private func openUrl(url: String, controller: FlutterViewController) {
+        let safariViewController = SFSafariViewController(url: URL(string: url)!)
+        controller.present(safariViewController, animated: true, completion: nil)
     }
-  }
 }
+

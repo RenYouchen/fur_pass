@@ -95,10 +95,13 @@ Widget _btn(BtnData data, context) {
           height: size,
           child: ElevatedButton(
               onPressed: () {
-                if (data.arg != null && data.arg() != true) {
+                if (data.arg != null && data.arg.runtimeType == Function && data.arg() != true) {
                   String rtData = data.arg();
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text(rtData)));
+                } else if(data.arg != null && data.arg.runtimeType == String) {
+                  print(data.arg);
+                  Navigator.pushNamed(context, data.navPath, arguments: data.arg);
                 } else {
                   try {
                     Navigator.pushNamed(context, data.navPath);
