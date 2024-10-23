@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fur_pass/Screens/EventDetail.dart';
 import 'package:fur_pass/Screens/EventsPage.dart';
 import 'package:fur_pass/Screens/MainPage.dart';
+import 'package:fur_pass/Screens/WebView.dart';
 
 import 'Global.dart';
 
@@ -24,8 +25,8 @@ class MyApp extends StatelessWidget {
         "/" : (context) => const MainPage(),
         "/events": (context) => const EventsPage(),
         "/eventDetail": (context) => const EventDetail(),
+        "/webView": (context) => const WebView(),
       },
     );
   }
 }
-//TODO 添加一個等待的介面

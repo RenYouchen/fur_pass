@@ -31,13 +31,17 @@ class Global {
   static var btns = [
     BtnData(icon:Icons.event, title:"活動", navPath: "/events", arg: () {
       if(localCache.isEmpty) {
+        if(sharedPreferences.getString("localCache") != null) {
+          localCache = sharedPreferences.getString("localCache")!;
+        } else {
+          fetchData();
+          return '正在加載資料... *請只點一次這個按鈕因為我不知道一直點cache會變什麼奇怪樣子 可以看上面的小鈴噹 完成會寫';
+        }
         //Fetch Data
-        fetchData();
-        return '正在加載資料... *請只點一次這個按鈕因為我不知道一直點cache會變什麼奇怪樣子 可以看上面的小鈴噹 完成會寫';
       }
       return true;
     }),
-    BtnData(icon:Icons.qr_code, title:"我的QR code", navPath: ""),
+    BtnData(icon:Icons.qr_code, title:"我的QR code", navPath: "/webView"),
     BtnData(icon:Icons.newspaper_rounded, title:"公告", navPath: ""),
     BtnData(icon:Icons.map_outlined, title:"會場地圖", navPath: ""),
   ];

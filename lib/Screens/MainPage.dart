@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fur_pass/Global.dart';
-import 'package:fur_pass/Screens/Loading.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});

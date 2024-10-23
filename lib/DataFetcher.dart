@@ -60,9 +60,9 @@ Future<HrData> _fetchHr(Element hrData, String date) async{
     var place = i.getElementsByClassName("vs")[0].text.trim();
     var path = i.attributes['href']!.trim();
     // print("Title: $name $place");
-    Global.setCurrentLoading = Global.currentLoading.value == -1? 1 : Global.currentLoading.value+=1;
     print("cur: ${Global.currentLoading.value}");
     var _data = await _getDetail(path, date);
+    Global.setCurrentLoading = Global.currentLoading.value == -1? 1 : Global.currentLoading.value+=1;
     print(name);
     var eventData = EventData(startTime: time, endTime: _data[0], name: name, place: place, url: path, describe: _data[1], eventType: _data[2], languages: _data[3]);
     data.add(eventData);
