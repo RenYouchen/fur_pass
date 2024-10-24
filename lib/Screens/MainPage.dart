@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fur_pass/Global.dart';
@@ -27,7 +29,8 @@ AppBar _appBar(context) => AppBar(
       title: const Text("Infurnity 2024"),
       actions: [
         IconButton(
-            onPressed: () => Global.fetchData(),
+            // onPressed: () => Global.fetchData(),
+            onPressed: () => Global.checkEventStatus(),
             icon: const Icon(Icons.refresh)),
         IconButton(
             onPressed: () async {
@@ -63,27 +66,32 @@ AppBar _appBar(context) => AppBar(
       ],
     );
 
-Column _body(context) => Column(
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.2,
-          child: const Padding(
-            padding: EdgeInsets.fromLTRB(64, 32, 64, 64),
-            child: Placeholder(),
-            // child: SvgPicture.asset("assets/infurnity-seven-logo-dark.svg"),
-          ),
+Column _body(context) {
+  return Column(
+    children: [
+      SizedBox(
+        height: MediaQuery.of(context).size.height * 0.2,
+        child: const Padding(
+          padding: EdgeInsets.fromLTRB(64, 32, 64, 64),
+          child: Placeholder(),
+          // child: SvgPicture.asset("assets/infurnity-seven-logo-dark.svg"),
         ),
-        GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4),
-            itemCount: Global.btns.length,
-            itemBuilder: (context, index) {
-              return _btn(Global.btns[index], context);
-            }),
-      ],
-    );
+      ),
+      GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4),
+          itemCount: Global.btns.length,
+          itemBuilder: (context, index) {
+            return _btn(Global.btns[index], context);
+          }),
+      // ListView.builder(itemBuilder: (context, index) {
+      //   return ListTile();
+      // }),
+    ],
+  );
+}
 
 Widget _btn(BtnData data, context) {
   double size = 80;
@@ -95,13 +103,14 @@ Widget _btn(BtnData data, context) {
           height: size,
           child: ElevatedButton(
               onPressed: () {
-                if (data.arg != null && data.arg.runtimeType == Function && data.arg() != true) {
+                print(data.arg.runtimeType);
+                if(data.arg != null && data.arg.runtimeType == String) {
+                  print(data.arg);
+                  Navigator.pushNamed(context, data.navPath, arguments: data.arg);
+                } else if (data.arg != null && data.arg() != true) {
                   String rtData = data.arg();
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text(rtData)));
-                } else if(data.arg != null && data.arg.runtimeType == String) {
-                  print(data.arg);
-                  Navigator.pushNamed(context, data.navPath, arguments: data.arg);
                 } else {
                   try {
                     Navigator.pushNamed(context, data.navPath);

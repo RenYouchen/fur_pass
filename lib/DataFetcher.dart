@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 
-// const target = "http://localhost:8000/";
-var target = "https://infurnity2024.sched.com/";
+const target = "http://localhost:8000/";
+// var target = "https://infurnity2024.sched.com/";
 
 void main() async{
   var data = await getData();
@@ -174,6 +174,8 @@ class EventData {
   String describe;
   List<dynamic> eventType;
   List<dynamic> languages;
+  
+  get id => url.substring(6,11);
 
   EventData({required this.startTime, required this.endTime, required this.name, required this.place, required this.url, required this.describe, required this.eventType, required this.languages});
 

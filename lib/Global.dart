@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fur_pass/DataFetcher.dart';
-import 'package:fur_pass/Screens/MainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Global {
 
+  //MARK: - Loading Status
   static ValueNotifier<int> totalLoading = ValueNotifier(-1);
   static ValueNotifier<int> currentLoading = ValueNotifier(-1);
   static ValueNotifier<String> messageLoading = ValueNotifier<String>('');
@@ -41,12 +41,13 @@ class Global {
       }
       return true;
     }),
-    BtnData(icon:Icons.qr_code, title:"我的QR code", navPath: ""),
+    BtnData(icon:Icons.qr_code, title:"我的QR code", navPath: "/webView", arg: "https://my.infurnity.com/dashboard/"),
     BtnData(icon:Icons.home/**/, title:"活動主頁", navPath: "/webView", arg: "https://www.infurnity.com/"),
     BtnData(icon:Icons.map_outlined, title:"會場地圖", navPath: "/webView", arg: "https://infurnity2024.sched.com/info?iframe=no"),
   ];
 
   static String localCache = "";
+  static Map<String,dynamic> cacheEventStatus = {};
 
   static late SharedPreferences sharedPreferences;
 
@@ -54,11 +55,11 @@ class Global {
     WidgetsFlutterBinding.ensureInitialized();
     sharedPreferences = await SharedPreferences.getInstance();
     //TODO Change This
-    // if(sharedPreferences.getString("localCache") == null) {
-    //   await fetchData();
-    // } else {
-    //   localCache = sharedPreferences.getString("localCache")!;
-    // }
+    if(sharedPreferences.getString("eventStatus") == null) {
+      await sharedPreferences.setString("eventStatus", jsonEncode({}));
+    } else {
+      cacheEventStatus = jsonDecode(sharedPreferences.getString("eventStatus")!);
+    }
     print(localCache);
     print('done init');
   }
@@ -72,8 +73,36 @@ class Global {
     localCache = data;
     setMessageLoading = "完成";
     sharedPreferences.setString("localCache", data);
+    checkEventStatus();
   }
 
+  static Future checkEventStatus() async {
+    List jsonData = jsonDecode(localCache);
+    var parseData = List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
+    for(var i in parseData) {
+      for(var j in i.hrDatas) {
+        for(var k in j.events) {
+          if(!cacheEventStatus.containsKey(k.url.substring(6,11))) {
+            ValueNotifier<List> v;
+            cacheEventStatus[k.url.substring(6,11)] = [false, false];
+          }
+        }
+      }
+    }
+    print(cacheEventStatus);
+    await saveEventStatus();
+  }
+
+  static Future setNotify() async {
+
+  }
+  static Future setStar() async {
+
+  }
+
+  static Future saveEventStatus() async{
+      await sharedPreferences.setString('localCache', jsonEncode(cacheEventStatus));
+  }
 }
 
 class BtnData{
