@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fur_pass/Global.dart';
 
+import '../DataFetcher.dart';
+
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -29,8 +31,8 @@ AppBar _appBar(context) => AppBar(
       title: const Text("Infurnity 2024"),
       actions: [
         IconButton(
-            // onPressed: () => Global.fetchData(),
-            onPressed: () => Global.checkEventStatus(),
+            onPressed: () => Global.fetchData(), //TODO add dialog
+            // onPressed: () => Global.checkEventStatus(),
             icon: const Icon(Icons.refresh)),
         IconButton(
             onPressed: () async {
@@ -86,9 +88,16 @@ Column _body(context) {
           itemBuilder: (context, index) {
             return _btn(Global.btns[index], context);
           }),
-      // ListView.builder(itemBuilder: (context, index) {
-      //   return ListTile();
-      // }),
+      ListView.builder(
+        shrinkWrap: true,
+        itemCount: 1,
+        itemBuilder: (context, index) {
+          print(Global.localCache);
+          List jsonData = jsonDecode(Global.localCache);
+          // var parseData = List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
+
+          return Placeholder();
+        }),
     ],
   );
 }
@@ -103,9 +112,7 @@ Widget _btn(BtnData data, context) {
           height: size,
           child: ElevatedButton(
               onPressed: () {
-                print(data.arg.runtimeType);
                 if(data.arg != null && data.arg.runtimeType == String) {
-                  print(data.arg);
                   Navigator.pushNamed(context, data.navPath, arguments: data.arg);
                 } else if (data.arg != null && data.arg() != true) {
                   String rtData = data.arg();
@@ -113,6 +120,8 @@ Widget _btn(BtnData data, context) {
                       .showSnackBar(SnackBar(content: Text(rtData)));
                 } else {
                   try {
+                    print(Global.localCache);
+                    print('object');
                     Navigator.pushNamed(context, data.navPath);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(

@@ -33,6 +33,7 @@ class Global {
       if(localCache.isEmpty) {
         if(sharedPreferences.getString("localCache") != null) {
           localCache = sharedPreferences.getString("localCache")!;
+          print(localCache);
         } else {
           fetchData();
           return '正在加載資料... *請只點一次這個按鈕因為我不知道一直點cache會變什麼奇怪樣子 可以看上面的小鈴噹 完成會寫';
@@ -60,6 +61,12 @@ class Global {
     } else {
       cacheEventStatus = jsonDecode(sharedPreferences.getString("eventStatus")!);
     }
+    if(sharedPreferences.getString("localCache") != null) {
+      localCache = sharedPreferences.getString("localCache")!;
+      checkEventStatus();
+      print(localCache);
+    }
+
     print(localCache);
     print('done init');
   }
@@ -83,7 +90,6 @@ class Global {
       for(var j in i.hrDatas) {
         for(var k in j.events) {
           if(!cacheEventStatus.containsKey(k.url.substring(6,11))) {
-            ValueNotifier<List> v;
             cacheEventStatus[k.url.substring(6,11)] = [false, false];
           }
         }
@@ -93,15 +99,17 @@ class Global {
     await saveEventStatus();
   }
 
-  static Future setNotify() async {
-
+  static Future setNotify(String id) async {
+    Global.cacheEventStatus[id]!.first = !Global.cacheEventStatus[id]!.first;
+    saveEventStatus();
   }
-  static Future setStar() async {
-
+  static Future setStar(String id) async {
+    Global.cacheEventStatus[id]!.last = !Global.cacheEventStatus[id]!.last;
+    saveEventStatus();
   }
 
   static Future saveEventStatus() async{
-      await sharedPreferences.setString('localCache', jsonEncode(cacheEventStatus));
+      await sharedPreferences.setString('eventStatus', jsonEncode(cacheEventStatus));
   }
 }
 

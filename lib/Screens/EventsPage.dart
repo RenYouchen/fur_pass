@@ -17,15 +17,15 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabBarController;
-
+var a = false;
   @override
   Widget build(BuildContext context) {
     List jsonData = jsonDecode(Global.localCache);
-    var parseData =
-        List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
+    var parseData = List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
+    a = !a;
     return Scaffold(
         appBar: AppBar(
-          title: const Text("活動"),
+          title: Text(a.toString()),
           bottom: TabBar(
             controller: _tabBarController,
             tabs: [
@@ -43,8 +43,10 @@ class _EventsPageState extends State<EventsPage>
                 itemCount: i.hrDatas.length,
                 itemBuilder: (context, index) {
                   return _eventPerHr(i.hrDatas[index], context, () {
+                    // Navigator.popAndPushNamed(context, '/events');
                     setState(() {
-
+                      print('a');
+                      // a = !a;
                     });
                   });
                 }),
@@ -60,7 +62,7 @@ class _EventsPageState extends State<EventsPage>
   }
 }
 
-Widget _eventPerHr(HrData data, BuildContext context,setstate) {
+Widget _eventPerHr(HrData data, BuildContext context, setstate) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Column(
@@ -77,6 +79,7 @@ Widget _eventPerHr(HrData data, BuildContext context,setstate) {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
+                var id = data.events[index].url.substring(6,11);
                 return Dismissible(
                   key: Key(data.events[index].name),
                   secondaryBackground: Container(
@@ -84,7 +87,7 @@ Widget _eventPerHr(HrData data, BuildContext context,setstate) {
                     alignment: Alignment.centerRight,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Icon(Global.cacheEventStatus[data.events[index].url.substring(6,11)]!.first? Icons.star: Icons.star_border),
+                      child: Icon(Global.cacheEventStatus[id]!.first? Icons.star: Icons.star_border),
                     ),
                   ),
                   background: Container(
@@ -92,15 +95,18 @@ Widget _eventPerHr(HrData data, BuildContext context,setstate) {
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Icon(Global.cacheEventStatus[data.events[index].url.substring(6,11)]!.last? Icons.notifications: Icons.notifications_active_outlined),
+                      child: Icon(Global.cacheEventStatus[id]!.last? Icons.notifications: Icons.notifications_active_outlined),
                     ),
                   ),
                   confirmDismiss: (v) async {
-                    print(data.events[index].url.substring(6,11));
                     if(v == DismissDirection.endToStart) { //Star
-                      Global.cacheEventStatus[data.events[index].url.substring(6,11)]!.first = !Global.cacheEventStatus[data.events[index].url.substring(6,11)]!.first;
+                      Global.setStar(id);
+                setstate();
+
                     } else if(v == DismissDirection.startToEnd) { //Notify
-                      Global.cacheEventStatus[data.events[index].url.substring(6,11)]!.last = !Global.cacheEventStatus[data.events[index].url.substring(6,11)]!.last;
+                      Global.setNotify(id);
+                setstate();
+
                     }
                     print(Global.cacheEventStatus);
                     setstate();
