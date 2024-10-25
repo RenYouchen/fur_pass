@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 
-const target = "http://localhost:8000/";
-// var target = "https://infurnity2024.sched.com/";
+// const target = "http://localhost:8000/";
+var target = "https://infurnity2024.sched.com/";
 
 void main() async{
   var data = await getData();
