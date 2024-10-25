@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fur_pass/Global.dart';
+import 'package:intl/intl.dart';
 
 import '../DataFetcher.dart';
 
@@ -22,7 +23,7 @@ class _MainPageState extends State<MainPage> {
     // };
     return Scaffold(
       appBar: _appBar(context),
-      body: _body(context),
+      body: _body(context, () => setState(() => {})),
     );
   }
 }
@@ -51,7 +52,8 @@ AppBar _appBar(context) => AppBar(
                               return ValueListenableBuilder(
                                   valueListenable: Global.currentLoading,
                                   builder: (_, valueC, __) {
-                                    print('$valueC $valueT : ${valueC/valueT}');
+                                    print(
+                                        '$valueC $valueT : ${valueC / valueT}');
                                     return LinearProgressIndicator(
                                       value: valueC / valueT,
                                     );
@@ -68,7 +70,23 @@ AppBar _appBar(context) => AppBar(
       ],
     );
 
-Column _body(context) {
+Column _body(context, setstate) {
+  List<EventData> listData = [];
+  if (Global.localCache.isNotEmpty) {
+    List jsonData = jsonDecode(Global.localCache);
+    var parseData =
+        List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
+    for (var i in parseData) {
+      for (var j in i.hrDatas) {
+        for (var k in j.events) {
+          if (Global.cacheEventStatus[k.id].first ||
+              Global.cacheEventStatus[k.id].last) {
+            listData.add(k);
+          }
+        }
+      }
+    }
+  }
   return Column(
     children: [
       SizedBox(
@@ -86,23 +104,81 @@ Column _body(context) {
               crossAxisCount: 4),
           itemCount: Global.btns.length,
           itemBuilder: (context, index) {
-            return _btn(Global.btns[index], context);
+            return _btn(Global.btns[index], context, setstate);
           }),
-      ListView.builder(
-        shrinkWrap: true,
-        itemCount: 1,
-        itemBuilder: (context, index) {
-          print(Global.localCache);
-          List jsonData = jsonDecode(Global.localCache);
-          // var parseData = List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
-
-          return Placeholder();
-        }),
+      if (listData.isNotEmpty)
+        Expanded(
+          child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: listData.length,
+              itemBuilder: (context, index) {
+                print(listData.length);
+                return Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Card(
+                        clipBehavior: Clip.antiAlias,
+                        color: Colors.orange[100],
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/eventDetail',
+                                arguments: listData[index]);
+                          },
+                          title: Text(
+                              listData[index].name.split(RegExp(r"[/／]+"))[0]),
+                          subtitle: listData[index]
+                                      .name
+                                      .split(RegExp(r"[/／]+"))
+                                      .length >=
+                                  2
+                              ? Text(listData[index]
+                                  .name
+                                  .split(RegExp(r"[/／]+"))
+                                  .last
+                                  .trim())
+                              : null,
+                          //好懶
+                          trailing: Text(
+                            listData[index]
+                                .place
+                                .replaceAll(' - ', '-')
+                                .split(' ')[1]
+                                .replaceAll('VIP', 'VIP Room'),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 16,
+                        top: -8,
+                        child: Card(
+                          color: Colors.amber[800],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(2)
+                          ),
+                          child: Row(
+                            children: [
+                              if(Global.cacheEventStatus[listData[index].id].last)
+                              const Icon(Icons.star,size: 16,color: Colors.yellow),
+                              if(Global.cacheEventStatus[listData[index].id].first)
+                              const Icon(Icons.notifications, size: 16, color: Colors.white)
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              }),
+        ),
+      if (listData.isEmpty) 
+        Expanded(child: Center(child: Text('到活動列表中左右滑動活動來添加吧!', style: Theme.of(context).textTheme.bodyLarge)))
     ],
   );
 }
 
-Widget _btn(BtnData data, context) {
+Widget _btn(BtnData data, context, setstate) {
   double size = 80;
   return Column(
     children: [
@@ -111,9 +187,10 @@ Widget _btn(BtnData data, context) {
           width: size,
           height: size,
           child: ElevatedButton(
-              onPressed: () {
-                if(data.arg != null && data.arg.runtimeType == String) {
-                  Navigator.pushNamed(context, data.navPath, arguments: data.arg);
+              onPressed: () async {
+                if (data.arg != null && data.arg.runtimeType == String) {
+                  Navigator.pushNamed(context, data.navPath,
+                      arguments: data.arg);
                 } else if (data.arg != null && data.arg() != true) {
                   String rtData = data.arg();
                   ScaffoldMessenger.of(context)
@@ -121,13 +198,13 @@ Widget _btn(BtnData data, context) {
                 } else {
                   try {
                     print(Global.localCache);
-                    print('object');
-                    Navigator.pushNamed(context, data.navPath);
+                    await Navigator.pushNamed(context, data.navPath);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('\'${data.title}\' 還沒完成><')));
                   }
                 }
+                setstate();
               },
               style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(

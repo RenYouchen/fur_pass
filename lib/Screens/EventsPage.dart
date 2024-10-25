@@ -17,15 +17,16 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabBarController;
-var a = false;
+  var a = false;
   @override
   Widget build(BuildContext context) {
     List jsonData = jsonDecode(Global.localCache);
-    var parseData = List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
+    var parseData =
+        List.generate(jsonData.length, (i) => DayData.fromJson(jsonData[i]));
     a = !a;
     return Scaffold(
         appBar: AppBar(
-          title: Text(a.toString()),
+          title: const Text('活動'),
           bottom: TabBar(
             controller: _tabBarController,
             tabs: [
@@ -43,10 +44,8 @@ var a = false;
                 itemCount: i.hrDatas.length,
                 itemBuilder: (context, index) {
                   return _eventPerHr(i.hrDatas[index], context, () {
-                    // Navigator.popAndPushNamed(context, '/events');
                     setState(() {
                       print('a');
-                      // a = !a;
                     });
                   });
                 }),
@@ -63,6 +62,10 @@ var a = false;
 }
 
 Widget _eventPerHr(HrData data, BuildContext context, setstate) {
+  List<EventData> listData = [];
+  for (var i in data.events) {
+    listData.add(i);
+  }
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Column(
@@ -79,7 +82,7 @@ Widget _eventPerHr(HrData data, BuildContext context, setstate) {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
-                var id = data.events[index].url.substring(6,11);
+                var id = data.events[index].url.substring(6, 11);
                 return Dismissible(
                   key: Key(data.events[index].name),
                   secondaryBackground: Container(
@@ -87,7 +90,9 @@ Widget _eventPerHr(HrData data, BuildContext context, setstate) {
                     alignment: Alignment.centerRight,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Icon(Global.cacheEventStatus[id]!.first? Icons.star: Icons.star_border),
+                      child: Icon(Global.cacheEventStatus[id]!.first
+                          ? Icons.star
+                          : Icons.star_border),
                     ),
                   ),
                   background: Container(
@@ -95,52 +100,83 @@ Widget _eventPerHr(HrData data, BuildContext context, setstate) {
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Icon(Global.cacheEventStatus[id]!.last? Icons.notifications: Icons.notifications_active_outlined),
+                      child: Icon(Global.cacheEventStatus[id]!.last
+                          ? Icons.notifications
+                          : Icons.notifications_active_outlined),
                     ),
                   ),
                   confirmDismiss: (v) async {
-                    if(v == DismissDirection.endToStart) { //Star
+                    if (v == DismissDirection.endToStart) {
+                      //Star
                       Global.setStar(id);
-                setstate();
-
-                    } else if(v == DismissDirection.startToEnd) { //Notify
+                      setstate();
+                    } else if (v == DismissDirection.startToEnd) {
+                      //Notify
                       Global.setNotify(id);
-                setstate();
-
+                      setstate();
                     }
                     print(Global.cacheEventStatus);
                     setstate();
                     return false;
                   },
-                  child: ListTile(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/eventDetail',
-                          arguments: data.events[index]);
-                    },
-                    title: Text(
-                        data.events[index].name.split(RegExp(r"[/／]+"))[0]),
-                    subtitle: data.events[index].name
-                                .split(RegExp(r"[/／]+"))
-                                .length >=
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      ListTile(
+                        leading: const SizedBox(),
+                        minLeadingWidth: 1,
+                        onTap: () {
+                          Navigator.pushNamed(context, '/eventDetail',
+                              arguments: data.events[index]);
+                        },
+                        title: Text(
+                            data.events[index].name.split(RegExp(r"[/／]+"))[0]),
+                        subtitle: data.events[index].name
+                            .split(RegExp(r"[/／]+"))
+                            .length >=
                             2
-                        ? Text(data.events[index].name
+                            ? Text(data.events[index].name
                             .split(RegExp(r"[/／]+"))
                             .last
                             .trim())
-                        : null,
-                    //好懶
-                    trailing: Text(
-                      data.events[index].place
-                          .replaceAll(' - ', '-')
-                          .split(' ')[1]
-                          .replaceAll('VIP', 'VIP Room'),
-                    ),
+                            : null,
+                        //好懶
+                        trailing: Text(
+                          data.events[index].place
+                              .replaceAll(' - ', '-')
+                              .split(' ')[1]
+                              .replaceAll('VIP', 'VIP Room'),
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        top: -4,
+                        child: Card(
+                          color: Colors.amber[600],
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(bottomRight: Radius.circular(4), bottomLeft: Radius.circular(4))
+                          ),
+                          child: Column(
+                            children: [
+                              if(Global.cacheEventStatus[listData[index].id].last||Global.cacheEventStatus[listData[index].id].first)
+                                const SizedBox(height: 2),
+                              if(Global.cacheEventStatus[listData[index].id].last)
+                                const Icon(Icons.star,size: 16,color: Colors.yellow),
+                              if(Global.cacheEventStatus[listData[index].id].first)
+                                const Icon(Icons.notifications, size: 16, color: Colors.white),
+                              if(Global.cacheEventStatus[listData[index].id].last||Global.cacheEventStatus[listData[index].id].first)
+                                const SizedBox(height: 2),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 );
               },
               separatorBuilder: (context, index) => const Divider(height: 0),
               itemCount: data.events.length),
-        ),
+        )
       ],
     ),
   );
