@@ -71,6 +71,7 @@ AppBar _appBar(context) => AppBar(
 
 Column _body(context, setstate) {
   List<EventData> listData = [];
+  var time = DateTime(2024, 10, 25, 23);
   if (Global.localCache.isNotEmpty) {
     List jsonData = jsonDecode(Global.localCache);
     var parseData =
@@ -85,6 +86,7 @@ Column _body(context, setstate) {
         }
       }
     }
+    
   }
   return Column(
     children: [
@@ -111,7 +113,7 @@ Column _body(context, setstate) {
               shrinkWrap: true,
               itemCount: listData.length,
               itemBuilder: (context, index) {
-                print(listData.length);
+                
                 return Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Stack(
@@ -119,7 +121,7 @@ Column _body(context, setstate) {
                     children: [
                       Card(
                         clipBehavior: Clip.antiAlias,
-                        color: Colors.orange[100],
+                        color: time.isBefore(listData[index].endTime)?Colors.orange[100] : Colors.grey[300],
                         child: ListTile(
                           onTap: () {
                             Navigator.pushNamed(context, '/eventDetail',
@@ -152,7 +154,7 @@ Column _body(context, setstate) {
                         left: 16,
                         top: -8,
                         child: Card(
-                          color: Colors.amber[800],
+                          color: time.isBefore(listData[index].endTime)?Colors.amber[800]: Colors.grey[400],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(2)
                           ),
@@ -161,7 +163,9 @@ Column _body(context, setstate) {
                               if(Global.cacheEventStatus[listData[index].id].last)
                               const Icon(Icons.star,size: 16,color: Colors.yellow),
                               if(Global.cacheEventStatus[listData[index].id].first)
-                              const Icon(Icons.notifications, size: 16, color: Colors.white)
+                              const Icon(Icons.notifications, size: 16, color: Colors.white),
+                              if(time.isAfter(listData[index].endTime))
+                                Text(" 結束時間: ${DateFormat("MM/dd hh:mm").format(listData[index].endTime)}")
                             ],
                           ),
                         ),
