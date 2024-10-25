@@ -63,6 +63,7 @@ class _EventsPageState extends State<EventsPage>
 
 Widget _eventPerHr(HrData data, BuildContext context, setstate) {
   List<EventData> listData = [];
+  var time = DateTime.now();
   for (var i in data.events) {
     listData.add(i);
   }
@@ -123,6 +124,7 @@ Widget _eventPerHr(HrData data, BuildContext context, setstate) {
                     clipBehavior: Clip.none,
                     children: [
                       ListTile(
+                        tileColor: time.isBefore(listData[index].endTime)?Colors.orange[100] : Colors.grey[300],
                         leading: const SizedBox(),
                         minLeadingWidth: 1,
                         onTap: () {
@@ -152,7 +154,7 @@ Widget _eventPerHr(HrData data, BuildContext context, setstate) {
                         left: 0,
                         top: -4,
                         child: Card(
-                          color: Colors.amber[600],
+                          color: time.isBefore(listData[index].endTime)?Colors.amber[800]: Colors.grey[400],
                           shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.only(bottomRight: Radius.circular(4), bottomLeft: Radius.circular(4))
                           ),
@@ -169,7 +171,19 @@ Widget _eventPerHr(HrData data, BuildContext context, setstate) {
                             ],
                           ),
                         ),
-                      )
+                      ),
+                      if(time.isAfter(listData[index].endTime))
+                        Positioned(
+                          right: -4,
+                          top: -4,
+                          child: Card(
+                            color: time.isBefore(listData[index].endTime)?Colors.amber[800]: Colors.grey[400],
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(4))
+                            ),
+                            child: Text("  結束時間: ${DateFormat("MM/dd hh:mm").format(listData[index].endTime)}  ")
+                          ),
+                        )
                     ],
                   ),
                 );
