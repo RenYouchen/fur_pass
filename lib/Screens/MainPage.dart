@@ -17,10 +17,6 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    // Global.onLoadingValueChange = () {
-    //   setState(() {
-    //   });
-    // };
     return Scaffold(
       appBar: _appBar(context),
       body: _body(context, () => setState(() => {})),
@@ -111,10 +107,10 @@ Column _body(context, setstate) {
     children: [
       SizedBox(
         height: MediaQuery.of(context).size.height * 0.2,
-        child: const Padding(
-          padding: EdgeInsets.fromLTRB(64, 32, 64, 64),
-          child: Placeholder(),
-          // child: SvgPicture.asset("assets/infurnity-seven-logo-dark.svg"),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(64, 32, 64, 64),
+          // child: Placeholder(),
+          child: SvgPicture.asset("assets/infurnity-seven-logo-dark.svg"),
         ),
       ),
       GridView.builder(
