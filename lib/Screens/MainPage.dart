@@ -37,7 +37,6 @@ AppBar _appBar(context) => AppBar(
             icon: const Icon(Icons.refresh)),
         IconButton(
             onPressed: () async {
-              /*TODO modife this*/
               showModalBottomSheet(
                 context: context,
                 builder: (context) => ValueListenableBuilder(
