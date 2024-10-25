@@ -32,7 +32,25 @@ AppBar _appBar(context) => AppBar(
       title: const Text("Infurnity 2024"),
       actions: [
         IconButton(
-            onPressed: () => Global.fetchData(), //TODO add dialog
+            onPressed: () {
+              showDialog(context: context, builder: (context) {
+                return AlertDialog(
+                  title: Text('刷新數據'),
+                  content: Text("按下確認後\n將會重新從${target}中讀取活動資料。 是否確認?"),
+                  actions: [
+                    TextButton(onPressed: (){
+                      Navigator.pop(context);
+                    }, child: const Text('取消')),
+                    TextButton(onPressed: () async{
+                      Global.fetchData();
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('正在刷新資料')));
+                      Navigator.pop(context);
+                    }, child: const Text('確認')),
+                  ],
+                );
+              });
+            },
+            // onPressed: () => Global.fetchData(), //TODO add dialog
             // onPressed: () => Global.checkEventStatus(),
             icon: const Icon(Icons.refresh)),
         IconButton(
@@ -71,7 +89,8 @@ AppBar _appBar(context) => AppBar(
 
 Column _body(context, setstate) {
   List<EventData> listData = [];
-  var time = DateTime(2024, 10, 25, 23);
+  // var time = DateTime(2024, 10, 25, 23);
+  var time = DateTime.now();
   if (Global.localCache.isNotEmpty) {
     List jsonData = jsonDecode(Global.localCache);
     var parseData =
