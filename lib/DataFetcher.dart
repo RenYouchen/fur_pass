@@ -6,11 +6,15 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 
-// const target = "http://localhost:8000/";
+// var target = "http://localhost:8000/";
 var target = "https://infurnity2024.sched.com/";
 
 void main() async{
+  var data = await getData();
+  var json = jsonEncode(data);
+  List jsonData = jsonDecode(json);
   await getJsonData();
+  // var a = DayData.fromJson(jsonData[0]);
 }
 
 Future<String> getJsonData() async {
@@ -18,10 +22,9 @@ Future<String> getJsonData() async {
 }
 
 Future<List<DayData>> getData() async{
-  var url = Uri.parse(target);
+  var url = Uri.parse("${target}a.html");
   var get = await http.get(url);
   var doc = parse(utf8.decode(get.bodyBytes));
-  print(doc.getElementsByClassName('list-simple').first.outerHtml);
   return await _fetchDays(doc.getElementsByClassName('list-simple').first);
 }
 
@@ -29,6 +32,10 @@ Future<List<DayData>> _fetchDays(Element listData) async{
   var days = listData.getElementsByClassName("sched-container-header");
   List<DayData> data = [];
   for(var i in days) {
+    if(i.parent!.className == "sched-dates-menu") {
+      continue;
+    }
+    print(i.parent!.className);
     var date = i.previousElementSibling!.id;
     var pointer = i;
     List<HrData> dayHrData = [];
@@ -39,27 +46,24 @@ Future<List<DayData>> _fetchDays(Element listData) async{
       }
       pointer = pointer.nextElementSibling!;
     }
-    // print(data);
-    if(data.isNotEmpty)
-      data.add(DayData(date: dayHrData.first.time, hrDatas: dayHrData));
+    data.add(DayData(date: dayHrData.first.time, hrDatas: dayHrData));
   }
   return data;
 }
 
 Future<HrData> _fetchHr(Element hrData, String date) async{
-  // print(hrData.outerHtml);
   var time = DateFormat("yyyy-MM-dd h:mma Z").parse("$date ${hrData.text.replaceAll("CST", "+0800").toUpperCase().trim()}");
   Global.setMessageLoading = DateFormat("yyyy-MM-dd h:mma Z").format(time);
   var events = hrData.nextElementSibling!.getElementsByClassName("name");
   List<EventData> data = [];
-  Global.setTotalLoading = Global.totalLoading.value == -1 ? events.length : Global.totalLoading.value + events.length;
+  Global.setTotalLoading = Global.totalLoading.value == -1 || true? events.length : Global.totalLoading.value + events.length;
   Global.setCurrentLoading = 0;
   print("TOTAL: ${Global.totalLoading.value}");
   for(var i in events) {
     var name = i.nodes[0].text!.trim();
     var place = i.getElementsByClassName("vs")[0].text.trim();
     var path = i.attributes['href']!.trim();
-    print("Title: $name $place");
+    // print("Title: $name $place");
     print("cur: ${Global.currentLoading.value}");
     print(name);
     var _data = await _getDetail(path, date);
@@ -109,6 +113,7 @@ Future<List> _getDetail(String path, String date) async{
     var rawDescribe = parse(doc.getElementsByClassName("tip-description")[0].outerHtml.replaceAll('<br>', '\n<br>')).getElementsByClassName("tip-description")[0];
     // print(rawDescribe.text.trim());
     describe = rawDescribe.text.trim();
+    //TODO 這邊可以再縮減 去掉if直接丟上去
   }
   // print("$describe\n$eventType\n$languages");
 
@@ -120,10 +125,10 @@ class DayData {
   List<HrData> hrDatas;
   DayData({required this.date, required this.hrDatas});
   DayData.fromJson(Map<String, dynamic> json) :
-    date = DateTime.parse(json['date']),
-    hrDatas = List.generate(json['hrDatas'].length, (i) => 
-      HrData.fromJson(json['hrDatas'][i])
-  );
+        date = DateTime.parse(json['date']),
+        hrDatas = List.generate(json['hrDatas'].length, (i) =>
+            HrData.fromJson(json['hrDatas'][i])
+        );
 
   @override
   String toString() {
@@ -144,10 +149,10 @@ class HrData {
   List<EventData> events;
   HrData({required this.time, required this.events});
   HrData.fromJson(Map<String, dynamic> json) :
-      time = DateTime.parse(json['time']),
-      events = List.generate(json['events'].length, (i) =>
-        EventData.fromJson(json['events'][i])
-      );
+        time = DateTime.parse(json['time']),
+        events = List.generate(json['events'].length, (i) =>
+            EventData.fromJson(json['events'][i])
+        );
 
   @override
   String toString() {
@@ -173,7 +178,7 @@ class EventData {
   String describe;
   List<dynamic> eventType;
   List<dynamic> languages;
-  
+
   get id => url.substring(6,11);
 
   EventData({required this.startTime, required this.endTime, required this.name, required this.place, required this.url, required this.describe, required this.eventType, required this.languages});
@@ -207,20 +212,20 @@ class EventData {
   }
 
 /***
-   * Name
-   * Place
-   * Url
-   *
-   * Time
-   * --StartTime
-   * --EndTime
-   *
-   * Describe --nullable
-   *
-   * EventType --nullable
-   * --Type
-   * --Languages
-   * ***/
+ * Name
+ * Place
+ * Url
+ *
+ * Time
+ * --StartTime
+ * --EndTime
+ *
+ * Describe --nullable
+ *
+ * EventType --nullable
+ * --Type
+ * --Languages
+ * ***/
 }
 
 
